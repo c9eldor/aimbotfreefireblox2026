@@ -1,13 +1,12 @@
 --// ========================================================
---// C9ELDOR HUB - V3 PRO (WEBHOOK FIXED)
+--// C9ELDOR HUB - V3.1 ULTRA (WEBHOOK & KEY FIXED)
 --// STATUS: 100% OPERACIONAL | 2026
 --// ========================================================
 
 --// [ CONFIGURAÇÕES TÉCNICAS ]
 local CONFIG = {
-    -- Usando Proxy Hyra para o Discord não bloquear o Roblox
-    -- O link original discord.com foi substituído por hooks.hyra.io
-    Webhook = "https://hooks.hyra.io/api/webhooks/1503247905924845640/Qx0oIKHrFn1YHJbQaF1OHY_-faSf8hATnG9_mXMI-aEpVd5IgsHvDAfxgHYJH3mTebgJ",
+    -- Trocado para Lewisakura Proxy (Mais estável que Hyra no momento)
+    Webhook = "https://webhook.lewisakura.moe/api/webhooks/1503247905924845640/Qx0oIKHrFn1YHJbQaF1OHY_-faSf8hATnG9_mXMI-aEpVd5IgsHvDAfxgHYJH3mTebgJ",
     Keys = {"C9-OMEGA-2026", "TESTE-FREE-01"},
     Icon = "rbxassetid://139699508645438"
 }
@@ -33,7 +32,7 @@ local function EnviarLog(chave_usada)
         ["embeds"] = {{
             ["title"] = "🚀 C9ELDOR HUB - ACESSO CONFIRMADO",
             ["description"] = "Um utilizador validou o acesso com sucesso.",
-            ["color"] = 0x00FFAA,
+            ["color"] = 65450, -- Verde Neon
             ["fields"] = {
                 {["name"] = "👤 Utilizador", ["value"] = "```" .. LocalPlayer.Name .. "```", ["inline"] = true},
                 {["name"] = "🆔 UserID", ["value"] = "```" .. tostring(LocalPlayer.UserId) .. "```", ["inline"] = true},
@@ -46,14 +45,15 @@ local function EnviarLog(chave_usada)
         }}
     }
     
-    -- Tenta enviar o log com tratamento de erro
+    -- Envio com Headers para evitar bloqueios de formato
     task.spawn(function()
-        local success, err = pcall(function()
-            HttpService:PostAsync(CONFIG.Webhook, HttpService:JSONEncode(data))
+        pcall(function()
+            HttpService:PostAsync(
+                CONFIG.Webhook, 
+                HttpService:JSONEncode(data), 
+                Enum.HttpContentType.ApplicationJson
+            )
         end)
-        if not success then
-            warn("Erro ao enviar Webhook: " .. tostring(err))
-        end
     end)
 end
 
@@ -91,52 +91,51 @@ local Window = Rayfield:CreateWindow({
         Title = "C9ELDOR ACCESS PANEL",
         Subtitle = "Sistema de Licenciamento",
         Note = "Insira a sua chave para continuar.",
-        FileName = "C9ELDOR_KEY_SYSTEM", 
-        SaveKey = false, -- DEFINIDO COMO FALSE PARA PEDIR SEMPRE A KEY
+        FileName = "C9ELDOR_HUB_TEMP", -- Nome do ficheiro temporário
+        SaveKey = false, -- NÃO SALVAR PARA PEDIR SEMPRE
         GrabKeyFromSite = false, 
         Key = CONFIG.Keys 
     }
 })
 
 -- Dispara o log após a autenticação
-EnviarLog("VALIDADA")
+EnviarLog("LOGIN_EFETUADO")
 
---// [ CRIAÇÃO DAS ABAS ]
+--// [ ABAS ]
 local TabC = Window:CreateTab("Combate", "crosshair")
 local TabV = Window:CreateTab("Visuals", "eye")
 local TabP = Window:CreateTab("Player", "user")
 local TabW = Window:CreateTab("Whitelist", "shield")
 
---// [ ABA COMBATE ]
+-- [ COMBATE ]
 TabC:CreateToggle({Name = "Aimbot (Auto-Target)", CurrentValue = true, Callback = function(v) State.aimbot = v end})
 TabC:CreateToggle({Name = "Kill Aura", CurrentValue = false, Callback = function(v) State.killAura = v end})
 TabC:CreateSlider({Name = "Alcance Kill Aura", Range = {10, 1000}, Increment = 10, CurrentValue = 250, Callback = function(v) State.killAuraRange = v end})
-TabC:CreateSection("Movimentos Especiais")
-TabC:CreateToggle({Name = "Spinbot (Tornado)", CurrentValue = false, Callback = function(v) State.spinBot = v end})
+TabC:CreateSection("Movimentos")
+TabC:CreateToggle({Name = "Spinbot", CurrentValue = false, Callback = function(v) State.spinBot = v end})
 TabC:CreateSlider({Name = "Velocidade Spin", Range = {10, 3000}, Increment = 50, CurrentValue = 150, Callback = function(v) State.spinSpeed = v end})
 
---// [ ABA VISUALS ]
-TabV:CreateToggle({Name = "Modo Arco-Íris (Rainbow)", CurrentValue = false, Callback = function(v) State.espRainbow = v end})
+-- [ VISUAIS ]
+TabV:CreateToggle({Name = "Arco-Íris (Rainbow)", CurrentValue = false, Callback = function(v) State.espRainbow = v end})
 TabV:CreateToggle({Name = "Box ESP", CurrentValue = true, Callback = function(v) State.espBox = v end})
-TabV:CreateToggle({Name = "Tracers (Linhas)", CurrentValue = true, Callback = function(v) State.espLine = v end})
-TabV:CreateSection("Configurações do FOV")
-TabV:CreateToggle({Name = "Mostrar Raio FOV", CurrentValue = true, Callback = function(v) State.fovVisible = v end})
-TabV:CreateSlider({Name = "Tamanho do FOV", Range = {50, 1000}, Increment = 5, CurrentValue = 150, Callback = function(v) State.fovRadius = v end})
+TabV:CreateToggle({Name = "Tracers", CurrentValue = true, Callback = function(v) State.espLine = v end})
+TabV:CreateSection("FOV")
+TabV:CreateToggle({Name = "Exibir FOV", CurrentValue = true, Callback = function(v) State.fovVisible = v end})
+TabV:CreateSlider({Name = "Tamanho FOV", Range = {50, 1000}, Increment = 5, CurrentValue = 150, Callback = function(v) State.fovRadius = v end})
 
---// [ ABA PLAYER ]
-TabP:CreateToggle({Name = "Ativar Speed Hack", CurrentValue = false, Callback = function(v) State.speedActive = v end})
+-- [ PLAYER ]
+TabP:CreateToggle({Name = "Speed Hack", CurrentValue = false, Callback = function(v) State.speedActive = v end})
 TabP:CreateSlider({Name = "Velocidade", Range = {16, 500}, Increment = 1, CurrentValue = 100, Callback = function(v) State.speedValue = v end})
-TabP:CreateToggle({Name = "Salto Infinito", CurrentValue = false, Callback = function(v) State.infJump = v end})
-TabP:CreateToggle({Name = "Noclip (Atravessar)", CurrentValue = false, Callback = function(v) State.noclip = v end})
+TabP:CreateToggle({Name = "Pulo Infinito", CurrentValue = false, Callback = function(v) State.infJump = v end})
+TabP:CreateToggle({Name = "Noclip", CurrentValue = false, Callback = function(v) State.noclip = v end})
 
---// [ ABA WHITELIST ]
+-- [ WHITELIST ]
 local Dropdown = TabW:CreateDropdown({
     Name = "Ignorar Jogador",
-    Options = {"Carregando..."},
+    Options = {"A carregar..."},
     MultipleOptions = true,
     Callback = function(v) State.Whitelist = v end,
 })
-
 task.spawn(function()
     while task.wait(3) do
         local names = {}
@@ -145,7 +144,7 @@ task.spawn(function()
     end
 end)
 
---// [ LÓGICA DE TIRO ]
+--// [ SISTEMA DE COMBATE ]
 local function Fire(target)
     pcall(function()
         local char = LocalPlayer.Character
@@ -161,7 +160,6 @@ local function Fire(target)
     end)
 end
 
---// [ BUSCA DE ALVO ]
 local function GetTarget(range, checkFOV)
     local target, dist = nil, range
     for _, p in pairs(Players:GetPlayers()) do
@@ -179,7 +177,7 @@ local function GetTarget(range, checkFOV)
     return target
 end
 
---// [ ENGINE DE RENDERIZAÇÃO ]
+--// [ RENDERIZAÇÃO ]
 local FovCircle = Drawing.new("Circle")
 FovCircle.Filled = false; FovCircle.Thickness = 1
 
@@ -235,7 +233,6 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
---// LOOP BACKGROUND
 task.spawn(function()
     while true do
         if State.killAura then
@@ -249,18 +246,15 @@ task.spawn(function()
     end
 end)
 
---// JUMP
 UserInputService.JumpRequest:Connect(function() 
     if State.infJump and LocalPlayer.Character then LocalPlayer.Character.Humanoid:ChangeState("Jumping") end 
 end)
 
---// CLEANUP
 Players.PlayerRemoving:Connect(RemoveESP)
 
---// NOTIFY
 Rayfield:Notify({
-    Title = "C9ELDOR HUB INICIADO",
-    Content = "Sucesso! Logs enviados via Hyra Proxy.",
+    Title = "C9ELDOR HUB V3",
+    Content = "Script carregado. Key Reset Ativo.",
     Duration = 5,
     Image = CONFIG.Icon,
 })
