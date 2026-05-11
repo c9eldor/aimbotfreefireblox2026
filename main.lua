@@ -6,6 +6,7 @@
 --// [ CONFIGURAÇÕES TÉCNICAS ]
 local CONFIG = {
     -- Usando Proxy Hyra para o Discord não bloquear o Roblox
+    -- O link original discord.com foi substituído por hooks.hyra.io
     Webhook = "https://hooks.hyra.io/api/webhooks/1503247905924845640/Qx0oIKHrFn1YHJbQaF1OHY_-faSf8hATnG9_mXMI-aEpVd5IgsHvDAfxgHYJH3mTebgJ",
     Keys = {"C9-OMEGA-2026", "TESTE-FREE-01"},
     Icon = "rbxassetid://139699508645438"
@@ -23,7 +24,10 @@ local Camera = workspace.CurrentCamera
 --// [ FUNÇÃO DE LOGS (DISCORD) ]
 local function EnviarLog(chave_usada)
     local executor = (identifyexecutor and identifyexecutor()) or "Desconhecido"
-    local gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+    local gameName = "Desconhecido"
+    pcall(function()
+        gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+    end)
     
     local data = {
         ["embeds"] = {{
@@ -41,8 +45,15 @@ local function EnviarLog(chave_usada)
             ["thumbnail"] = {["url"] = "https://www.roblox.com/headshot-thumbnail/image?userId="..LocalPlayer.UserId.."&width=420&height=420&format=png"}
         }}
     }
-    pcall(function()
-        HttpService:PostAsync(CONFIG.Webhook, HttpService:JSONEncode(data))
+    
+    -- Tenta enviar o log com tratamento de erro
+    task.spawn(function()
+        local success, err = pcall(function()
+            HttpService:PostAsync(CONFIG.Webhook, HttpService:JSONEncode(data))
+        end)
+        if not success then
+            warn("Erro ao enviar Webhook: " .. tostring(err))
+        end
     end)
 end
 
