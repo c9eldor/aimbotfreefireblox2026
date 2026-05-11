@@ -251,5 +251,5 @@ Rayfield:Notify({
     Title = "C9ELDOR HUB INICIADO",
     Content = "Tudo pronto, " .. LocalPlayer.Name .. "!",
     Duration = 5,
-    Image = 4483362458,
+    Image = 139699508645438,
 })
