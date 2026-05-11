@@ -1,11 +1,12 @@
 --// ========================================================
---// C9ELDOR HUB - V2 FINAL COMPLETO (PROTECTED)
+--// C9ELDOR HUB - V3 PRO (WEBHOOK FIXED)
 --// STATUS: 100% OPERACIONAL | 2026
 --// ========================================================
 
 --// [ CONFIGURAÇÕES TÉCNICAS ]
 local CONFIG = {
-    Webhook = "https://discord.com/api/webhooks/1503247905924845640/Qx0oIKHrFn1YHJbQaF1OHY_-faSf8hATnG9_mXMI-aEpVd5IgsHvDAfxgHYJH3mTebgJ",
+    -- Usando Proxy Hyra para o Discord não bloquear o Roblox
+    Webhook = "https://hooks.hyra.io/api/webhooks/1503247905924845640/Qx0oIKHrFn1YHJbQaF1OHY_-faSf8hATnG9_mXMI-aEpVd5IgsHvDAfxgHYJH3mTebgJ",
     Keys = {"C9-OMEGA-2026", "TESTE-FREE-01"},
     Icon = "rbxassetid://139699508645438"
 }
@@ -80,7 +81,7 @@ local Window = Rayfield:CreateWindow({
         Subtitle = "Sistema de Licenciamento",
         Note = "Insira a sua chave para continuar.",
         FileName = "C9ELDOR_KEY_SYSTEM", 
-        SaveKey = true, 
+        SaveKey = false, -- DEFINIDO COMO FALSE PARA PEDIR SEMPRE A KEY
         GrabKeyFromSite = false, 
         Key = CONFIG.Keys 
     }
@@ -223,6 +224,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
+--// LOOP BACKGROUND
 task.spawn(function()
     while true do
         if State.killAura then
@@ -236,15 +238,18 @@ task.spawn(function()
     end
 end)
 
+--// JUMP
 UserInputService.JumpRequest:Connect(function() 
     if State.infJump and LocalPlayer.Character then LocalPlayer.Character.Humanoid:ChangeState("Jumping") end 
 end)
 
+--// CLEANUP
 Players.PlayerRemoving:Connect(RemoveESP)
 
+--// NOTIFY
 Rayfield:Notify({
     Title = "C9ELDOR HUB INICIADO",
-    Content = "Script carregado com sucesso, " .. LocalPlayer.Name .. "!",
+    Content = "Sucesso! Logs enviados via Hyra Proxy.",
     Duration = 5,
     Image = CONFIG.Icon,
 })
